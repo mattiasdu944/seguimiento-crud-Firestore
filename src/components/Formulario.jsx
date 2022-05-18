@@ -1,12 +1,10 @@
-
 import React, { useState, useEffect } from "react";
 import Error from "./Error";
 
 import { db } from "../firebase";
-import { doc, setDoc, getDocs,collection } from "firebase/firestore";
-import { async } from "@firebase/util";
+import { doc, setDoc, collection, onSnapshot, query } from "firebase/firestore";
 
-const Formulario = ({ setPacientes, pacientes, setPaciente, paciente }) => {
+const Formulario = ({ setPacientes, setPaciente, paciente }) => {
   const [nombre, setNombre] = useState("");
   const [propietario, setPropietario] = useState("");
   const [email, setEmail] = useState("");
@@ -27,20 +25,23 @@ const Formulario = ({ setPacientes, pacientes, setPaciente, paciente }) => {
   }, [paciente])
 
 
+
+  // EXTRAER LA INFORMACION DEL PACIENTE DESDE LA DB DE DIREBASE
   const showPaciente = async () => {
-    // const docRef =  doc(db, "pacientes","euntbfnjwxul39hgxb3");
-    // const docSnap = await getDoc(docRef);
-    // console.log(docRef);
-    const querySnapshot = await getDocs(collection(db, "pacientes"));
-    querySnapshot.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      console.log(doc.id, " => ", doc.data());
+
+    const q = query(collection(db, "pacientes"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const pacientes = [];
+      querySnapshot.forEach((doc) => {
+        pacientes.push({ ...doc.data(), id: doc.id });
+
+      });
+      setPacientes(pacientes);
     });
   }
 
   useEffect(() => {
     showPaciente();
-
   }, [])
 
 
@@ -49,6 +50,7 @@ const Formulario = ({ setPacientes, pacientes, setPaciente, paciente }) => {
     const fecha = Date.now().toString(36);
     return random + fecha;
   };
+
 
   const addPaciente = async (e) => {
     e.preventDefault();
@@ -71,77 +73,13 @@ const Formulario = ({ setPacientes, pacientes, setPaciente, paciente }) => {
       sintomas,
     };
 
-
-    await setDoc(doc(db, "pacientes", generarId()), objetoPaciente);
-    // console.log(objetoPaciente);
-    // console.log(db);
-
-    // if (paciente.id) {
-    //   //EDITANDO REGISTRO
-    //   objetoPaciente.id = paciente.id;
-
-    //   // EDITAR PACIENTE EN EL ARREGLO
-    //   const pacientesEditados = pacientes.map(pacienteState => pacienteState.id === paciente.id ? objetoPaciente : pacienteState);
-    //   setPacientes(pacientesEditados);
-    //   setPaciente({});
-
-    // } else {
-    //   //NUEVO REGISTRO  
-    //   objetoPaciente.id = generarId();
-    //   setPacientes([...pacientes, objetoPaciente]);
-
-
-    // }
-
-    // REINICIAR EL FORM
-    setNombre("");
-    setPropietario("");
-    setEmail("");
-    setFecha("");
-    setSintomas("");
-  };
-
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // VALIDACION DEL FORMULARIO
-    if ([nombre, propietario, email, fecha, sintomas].includes("")) {
-      console.log("Hay un campo vacio");
-      setError(true);
-      return;
-    }
-
-    setError(false);
-
-    // creando objeto para pasar al arreglo de app
-    const objetoPaciente = {
-      nombre,
-      propietario,
-      email,
-      fecha,
-      sintomas,
-    };
-
-
-
     if (paciente.id) {
-      //EDITANDO REGISTRO
-      objetoPaciente.id = paciente.id;
-
-      // EDITAR PACIENTE EN EL ARREGLO
-      const pacientesEditados = pacientes.map(pacienteState => pacienteState.id === paciente.id ? objetoPaciente : pacienteState);
-      setPacientes(pacientesEditados);
+      await setDoc(doc(db, "pacientes", paciente.id), objetoPaciente);
       setPaciente({});
-
-    } else {
-      //NUEVO REGISTRO  
-      objetoPaciente.id = generarId();
-      setPacientes([...pacientes, objetoPaciente]);
-
-
     }
-
+    else {
+      await setDoc(doc(db, "pacientes", generarId()), objetoPaciente);
+    }
     // REINICIAR EL FORM
     setNombre("");
     setPropietario("");

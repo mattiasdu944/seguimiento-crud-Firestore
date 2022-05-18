@@ -1,15 +1,17 @@
 import React from 'react'
+import {db} from '../firebase'
+import { doc, deleteDoc } from "firebase/firestore";
 
-const Paciente = ({ paciente, setPaciente, eliminarPaciente }) => {
+const Paciente = ({ paciente, setPaciente }) => {
   const { nombre, propietario, email, fecha,sintomas, id } = paciente
 
-  const handleEliminar = () => {
+  const handleEliminar = async () => {
     const respuesta = confirm('Deseas eliminar este paciente?');
     if (respuesta) {
-      eliminarPaciente(id);
+      console.log('eliminando paciente', id);
+      await deleteDoc(doc(db, "pacientes", id))
     }
   }
-
 
   return (
     <div className=" m-3 bg-white px-5 py-10 rounded-xl">
@@ -48,7 +50,6 @@ const Paciente = ({ paciente, setPaciente, eliminarPaciente }) => {
         <button 
           type='button'
           className='py-2 px-10 bg-red-600 hover:bg-red-700 cursor-pointer transition-colors text-white font-bold rounded-md mt-5'
-          // onClick={() => eliminarPaciente(id)}
           onClick={handleEliminar}
         >
           Eliminar
