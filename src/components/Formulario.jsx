@@ -61,7 +61,6 @@ const Formulario = ({ setPacientes, setPaciente, paciente }) => {
       setError(true);
       return;
     }
-
     setError(false);
 
     // creando objeto para pasar al arreglo de app
