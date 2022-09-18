@@ -6,12 +6,12 @@ import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyA6jDItyfFkdcYkJj4L-h6fI8dIZKcZ_9k",
+  apiKey: import.meta.env.VITE_APP_API_KEY,
   authDomain: "citas-crud.firebaseapp.com",
-  projectId: "citas-crud",
+  projectId: import.meta.env.VITE_APP_PROJECT_ID,
   storageBucket: "citas-crud.appspot.com",
   messagingSenderId: "131082297449",
-  appId: "1:131082297449:web:e6e8f0dcf4599b089642f8"
+  appId: import.meta.env.VITE_APP_ID
 };
 
 // Initialize Firebase
